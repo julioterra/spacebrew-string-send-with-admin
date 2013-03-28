@@ -4,8 +4,7 @@
 		<title>Spacebrew String</title>
 
 		<meta charset="utf-8">
-		<link rel="stylesheet" href="css/reset.css" type="text/css" media="screen" charset="utf-8" />
-		<!-- <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" charset="utf-8" /> -->
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
 		<link rel="stylesheet" href="css/jquery.mobile-1.2.0.min.css" />
 
 		<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
@@ -14,9 +13,6 @@
 		<script type="text/javascript" src="js/sb-1.0.4.js"></script>
 		<script type="text/javascript" src="js/sb-admin-0.0.1.js"></script>
 		<script type="text/javascript" src="js/admin_select.js"></script>
-
-		<!-- // <script type="text/javascript" src="js/jq.js"></script> -->
-		<!-- // <script type="text/javascript" src="js/sb-1.0.4.js"></script> -->
 
 		<script type="text/javascript">
 
@@ -65,8 +61,13 @@
 			}
 
 			function setupUI (){
+			var button_press_event = "mousedown";
+			if ($.browser.mobile) {
+				button_press_event = "touchstart"; 
+			}
+
 				// listen to button clicks
-				$("#submit1").on("mousedown", onMouseDown);
+				$("#submit1").on(button_press_event, onMouseDown);
 
 				// if app is running on a desktop computer then set data-native-menu= to "false"
 				$(".select-subscribe-string").bind( "change", function(event) {
@@ -131,7 +132,7 @@
 			</div>
 
 			<div data-role="content" id="content">	
-				<label for="text">button 1:</label>
+				<label for="text">Write Something</label>
 				<input type="text" class="text" id="text" value="say something"/>
 				<input type="button" class="button" id="submit1" value="press me" data-icon="star"/>
 				<select name="select-subscribe-string" id="text-select" class="select-subscribe-string" multiple="multiple" data-native-menu="true" data-icon="grid" data-iconpos="left">
