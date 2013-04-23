@@ -19,6 +19,7 @@
 
 			var sb = {}
 				, string_subs = []
+				, string_pubs = []
 				, data_types = ["string"]
 				, debug = true;
 
@@ -62,10 +63,10 @@
 			}
 
 			function setupUI (){
-			var button_press_event = "mousedown";
-			if ($.browser.mobile) {
-				button_press_event = "touchstart"; 
-			}
+				var button_press_event = "mousedown";
+				if ($.browser.mobile) {
+					button_press_event = "touchstart"; 
+				}
 
 				// listen to button clicks
 				$("#submit1").on(button_press_event, onMouseDown);
@@ -75,7 +76,17 @@
 					console.log("select-subscribe-string - dropdown changed ", event);
 					var self = this;
 					updateRouteFromUI( event, self );
+					// updateRouteFromUI( event, self );
 				});		
+
+				// if app is running on a desktop computer then set data-native-menu= to "false"
+				$(".select-publish-string").bind( "change", function(event) {
+					console.log("select-publish-string - dropdown changed ", event);
+					var self = this;
+					// updateRouteFromUI( event, self );
+					updateRouteFromUI( event, self );
+				});		
+
 
 			}
 
@@ -108,12 +119,14 @@
 			function onNewClient( client ) {
 				console.log("[onNewClient] new client ", client);
 				addPubSub(client, "string", "subscribe", string_subs);
+				addPubSub(client, "string", "publish", string_pubs);
 				$("select").selectmenu( "refresh" );
 			}
 
 			function onRemoveClient( name, address ) {
 				console.log("[onRemoveClient] remove client '" + name + "' with address '" + address + "'");
 				removePubSub(name, address, string_subs);
+				removePubSub(name, address, string_pubs);
 				$("select").selectmenu( "refresh" );
 			}
 
@@ -136,9 +149,15 @@
 				<label for="text">Write Something</label>
 				<input type="text" class="text" id="text" value="say something"/>
 				<input type="button" class="button" id="submit1" value="press me" data-icon="star"/>
-				<select name="select-subscribe-string" id="text-select" class="select-subscribe-string" multiple="multiple" data-native-menu="true" data-icon="grid" data-iconpos="left">
+
+				<select name="select-subscribe-string" id="text-select-subscribe" class="select-subscribe-string" multiple="multiple" data-native-menu="true" data-icon="grid" data-iconpos="left">
 				    <option name="none">choose the subscribers:</option>
 				</select>
+
+				<select name="select-publish-string" id="text-select-publish" class="select-publish-string" multiple="multiple" data-native-menu="true" data-icon="grid" data-iconpos="left">
+				    <option name="none">choose the publishers:</option>
+				</select>
+
 				<h2>
 					Sent Message: <span id="status"/>
 				</h2>

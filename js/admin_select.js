@@ -1,3 +1,7 @@
+var pubs = {}
+	, subs = {}
+
+
 		/**
 		 * ADMIN DROPDOWN MENU HANDLER METHODS
 		 */
@@ -9,32 +13,50 @@
 					else $("#" + $item.id).attr("data-native-menu", "true");
 					console.log("update menu ", $("#" + $item.id).attr("data-native-menu"));
 				});
+				$("select.select-publish-" + data_types[i]).each( function(i, $item) {
+					if (!$.browser.mobile) $("#" + $item.id).attr("data-native-menu", "false");
+					else $("#" + $item.id).attr("data-native-menu", "true");
+					console.log("update menu ", $("#" + $item.id).attr("data-native-menu"));
+				});
+
 			}
 		}
 
 		function updateRouteFromUI ( event, self ) {
-			var pub_name
+			var local_pub_sub_name
 				, remote_address
 				, client_name
-				, sub_name
+				, remote_pub_sub_name
 				;
 
 			for ( var i = 0; i < event.target.length; i++ ) {
 				if (i == 0) continue;
-				sub_name = $(event.target[i]).attr("data-route-name");
+				remote_pub_sub_name = $(event.target[i]).attr("data-route-name");
 				client_name = $(event.target[i]).attr("data-client-name");
 				remote_address = $(event.target[i]).attr("data-remote-address");
 				prev_state = $(event.target[i]).attr("data-prev-state");
-				pub_name = $(self).parent().context.id.replace("-select", "");	
+				local_pub_sub_name = $(self).parent().context.id.replace(/-select-.*/, "");	
+				pub_or_sub = $(self).parent().context.id.replace(/\w*-select-/, "");	
+
+				console.log("[updateRouteFromUI] adding '" + pub_or_sub + "' route");
 
 				if (event.target[i].selected && prev_state === "false") {
-					console.log("NEW route " +pub_name + " client " + client_name + " add " + remote_address + " sub " + sub_name)
-					sb.addSubRoute( pub_name, client_name, remote_address, sub_name );
+					if (pub_or_sub === "subcribe") {
+						sb.addSubRoute( local_pub_sub_name, client_name, remote_address, remote_pub_sub_name );
+					}
+					else if (pub_or_sub === "publish") {
+						sb.addPubRoute( local_pub_sub_name, client_name, remote_address, remote_pub_sub_name );						
+					}
 					$(event.target[i]).attr("data-prev-state", "true");					
 				} 
 
 				else if (!event.target[i].selected && prev_state === "true") {
-					sb.removeSubRoute( pub_name, client_name, remote_address, sub_name );					
+					if (pub_or_sub === "subcribe") {
+						sb.removeSubRoute( local_pub_sub_name, client_name, remote_address, remote_pub_sub_name );	
+					}				
+					else if (pub_or_sub === "publish") {
+						sb.removePubRoute( local_pub_sub_name, client_name, remote_address, remote_pub_sub_name );	
+					}
 					$(event.target[i]).attr("data-prev-state", "false");					
 				}
 			}
@@ -48,13 +70,13 @@
 
 			// check if route involves the current app, get ids if appropriate
 			if (sb.isThisApp(pub.clientName, pub.remoteAddress)) {
-				pub_sub_id = sub.clientName + "_" + sub.remoteAddress + "_" + sub.name;
+				pub_sub_id = sub.clientName + "_" + sub.remoteAddress + "_" + sub.name + "_publish";
 				pub_sub_id = pub_sub_id.replace(/ /g, "");
 				select_id = pub.name + "-select";
 				connecting_to_pub_or_sub = "subscribe";
 			} 
 			else if (sb.isThisApp(sub.clientName, sub.remoteAddress)) {
-				pub_sub_id = pub.clientName + "_" + pub.remoteAddress + "_" + pub.name;
+				pub_sub_id = pub.clientName + "_" + pub.remoteAddress + "_" + pub.name + "_subscribe";
 				pub_sub_id = pub_sub_id.replace(/ /g, "");
 				select_id = sub.name + "-select";
 				connecting_to_pub_or_sub = "publish";
@@ -139,20 +161,27 @@
 
 				// add new subscribe elements to local array
 				pub_sub_array.push(new_subs_or_pubs[i]);
+				console.log("LLLLOOOOKKKKKK" + "select.select-" + pub_or_sub + "-" + type, $("select.select-" + pub_or_sub + "-" + type));
 
 				// loop through pub or sub drop down of appropriate type to add new items
 				if ($("select.select-" + pub_or_sub + "-" + type)) {
+				console.log("LLLLOOOOKKKKKK" + "select.select-" + pub_or_sub + "-" + type, $("select.select-" + pub_or_sub + "-" + type));
 					$("select.select-" + pub_or_sub + "-" + type).each( function(index, $item) {
-						var $new_option = $('<option>', { value: new_subs_or_pubs[i].id
+						var $new_option = $('<option>', { 
+										value: new_subs_or_pubs[i].id
 										, text: new_subs_or_pubs[i].clientName + " : " + new_subs_or_pubs[i].name
 										, name: new_subs_or_pubs[i].clientId
 						});
+
 						$new_option.attr("data-route-name", new_subs_or_pubs[i].name);
 						$new_option.attr("data-client-name", new_subs_or_pubs[i].clientName);
 						$new_option.attr("data-remote-address", new_subs_or_pubs[i].remoteAddress);
 						$new_option.attr("data-pub-or-sub", pub_or_sub);
 						$new_option.attr("data-prev-state", "false");
 						$new_option.appendTo("#" + $item.id);
+						console.log("created new option ", $new_option);
+						console.log("created new item ", $item);
+						console.log("created new item id ", $item.id);
 						console.log("created new option ", $("#" + $item.id));
 						console.log("created new option ", $new_option);
 					});					
@@ -176,7 +205,7 @@
 					client_id = client.name + "_" + client.remoteAddress;
 					client_id = client_id.replace(/ /g, "");
 
-					pub_sub_id = client_id + "_" + pub_sub_item.name;
+					pub_sub_id = client_id + "_" + pub_sub_item.name + "_" + pub_or_sub;
 					pub_sub_id = pub_sub_id.replace(/ /g, "");
 
 					new_item = { clientName: client.name
