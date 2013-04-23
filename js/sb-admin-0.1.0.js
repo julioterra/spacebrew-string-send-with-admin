@@ -18,8 +18,8 @@
  * - added methods to handle admin messages and to update routes.
  * 
  * @author 		Julio Terra
- * @filename	sb-1.0.4.js
- * @version 	1.0.4
+ * @filename	sb-admin-0.1.0.js
+ * @version 	0.1.0
  * @date 		Mar 18, 2013
  * 
  */
