@@ -18,13 +18,12 @@
 		<script type="text/javascript">
 
 			var sb = {}
-				, data_types = ["string"]
 				, debug = true
+				, selects = spacebrewDropDownGenerator( sb )
 				;
 
-
 			// customize UI based on whether page is loaded on a mobile device
-			$(document).live("pagebeforecreate", function () { initDropdown() });
+			$(document).live("pagebeforecreate", function () { selects.initDropdown() });
 
 			// when jquery mobile is ready to initialize the UI call the setUI function 
 			$(document).live("pageinit", setupUI);
@@ -42,6 +41,7 @@
 				// setup spacebrew
 				sb = new Spacebrew.Client();
 				sb.extend(Spacebrew.Admin);
+				selects.registerSB(sb);
 
 				// set the base description
 				sb.name("space strings");
@@ -70,20 +70,6 @@
 
 				// listen to button clicks
 				$("#submit1").on(button_press_event, onMouseDown);
-
-				// if app is running on a desktop computer then set data-native-menu= to "false"
-				$(".select-subscribe-string").on( "change", function(event) {
-					console.log("select-subscribe-string - dropdown changed ", event);
-					var self = this;
-					updateRouteFromUI( event, self );
-				});		
-
-				// if app is running on a desktop computer then set data-native-menu= to "false"
-				$(".select-publish-string").on( "change", function(event) {
-					console.log("select-publish-string - dropdown changed ", event);
-					var self = this;
-					updateRouteFromUI( event, self );
-				});		
 			}
 
 			/**
@@ -114,18 +100,19 @@
 
 			function onNewClient( client ) {
 				console.log("[onNewClient] new client ", client);
-				addPubSub( client );
+				selects.addPubSub( client );
 				$("select").selectmenu( "refresh" );
 			}
 
 			function onRemoveClient( name, address ) {
 				console.log("[onRemoveClient] remove client '" + name + "' with address '" + address + "'");
-				removePubSub( name, address );
+				selects.removePubSub( name, address );
 				$("select").selectmenu( "refresh" );
 			}
 
 			function onUpdateRoute ( type, pub, sub ) {
-				updateRouteFromServer(type, pub, sub);
+				console.log("[onUpdateRoute] " + type + " route ");
+				selects.updateRouteFromServer(type, pub, sub);
 				$("select").selectmenu( "refresh" );
 			}
 
@@ -144,10 +131,10 @@
 				<input type="text" class="text" id="text" value="say something"/>
 				<input type="button" class="button" id="submit1" value="press me" data-icon="star"/>
 
-				<select data-local-route-name="text" data-type="string" data-pub-or-sub="subscribe" name="select-subscribe-string" class="spacebrew-select" data-native-menu="true" data-icon="grid" data-iconpos="left"/>
+				<select data-local-route-name="text" data-sb-type="string" data-pub-or-sub="publisher" class="spacebrew-select" data-icon="grid" data-iconpos="left"/>
 				</select>
 
-				<select data-local-route-name="text" data-type="string" data-pub-or-sub="publish" name="select-publish-string" class="spacebrew-select" data-native-menu="true" data-icon="grid" data-iconpos="left"/>
+				<select data-local-route-name="text" data-sb-type="string" data-pub-or-sub="subscriber" class="spacebrew-select" data-icon="grid" data-iconpos="left"/>
 				</select>
 
 				<h2>
