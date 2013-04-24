@@ -13,18 +13,18 @@
 		<script type="text/javascript" src="js/mobile_detect.js"></script>
 		<script type="text/javascript" src="js/sb-1.2.0.js"></script>
 		<script type="text/javascript" src="js/sb-admin-0.1.0.js"></script>
-		<script type="text/javascript" src="js/admin_select.js"></script>
+		<script type="text/javascript" src="js/sb-admin-dropdown-gen-0.1.0.js"></script>
 
 		<script type="text/javascript">
 
 			var sb = {}
-				, string_subs = []
-				, string_pubs = []
 				, data_types = ["string"]
-				, debug = true;
+				, debug = true
+				;
+
 
 			// customize UI based on whether page is loaded on a mobile device
-			$(document).live("pagebeforecreate", function () { checkIfMobile(data_types) });
+			$(document).live("pagebeforecreate", function () { initDropdown() });
 
 			// when jquery mobile is ready to initialize the UI call the setUI function 
 			$(document).live("pageinit", setupUI);
@@ -72,22 +72,18 @@
 				$("#submit1").on(button_press_event, onMouseDown);
 
 				// if app is running on a desktop computer then set data-native-menu= to "false"
-				$(".select-subscribe-string").bind( "change", function(event) {
+				$(".select-subscribe-string").on( "change", function(event) {
 					console.log("select-subscribe-string - dropdown changed ", event);
 					var self = this;
 					updateRouteFromUI( event, self );
-					// updateRouteFromUI( event, self );
 				});		
 
 				// if app is running on a desktop computer then set data-native-menu= to "false"
-				$(".select-publish-string").bind( "change", function(event) {
+				$(".select-publish-string").on( "change", function(event) {
 					console.log("select-publish-string - dropdown changed ", event);
 					var self = this;
-					// updateRouteFromUI( event, self );
 					updateRouteFromUI( event, self );
 				});		
-
-
 			}
 
 			/**
@@ -118,15 +114,13 @@
 
 			function onNewClient( client ) {
 				console.log("[onNewClient] new client ", client);
-				addPubSub(client, "string", "subscribe", string_subs);
-				addPubSub(client, "string", "publish", string_pubs);
+				addPubSub( client );
 				$("select").selectmenu( "refresh" );
 			}
 
 			function onRemoveClient( name, address ) {
 				console.log("[onRemoveClient] remove client '" + name + "' with address '" + address + "'");
-				removePubSub(name, address, string_subs);
-				removePubSub(name, address, string_pubs);
+				removePubSub( name, address );
 				$("select").selectmenu( "refresh" );
 			}
 
@@ -150,12 +144,10 @@
 				<input type="text" class="text" id="text" value="say something"/>
 				<input type="button" class="button" id="submit1" value="press me" data-icon="star"/>
 
-				<select name="select-subscribe-string" id="text-select-subscribe" class="select-subscribe-string" multiple="multiple" data-native-menu="true" data-icon="grid" data-iconpos="left">
-				    <option name="none">choose the subscribers:</option>
+				<select data-local-route-name="text" data-type="string" data-pub-or-sub="subscribe" name="select-subscribe-string" class="spacebrew-select" data-native-menu="true" data-icon="grid" data-iconpos="left"/>
 				</select>
 
-				<select name="select-publish-string" id="text-select-publish" class="select-publish-string" multiple="multiple" data-native-menu="true" data-icon="grid" data-iconpos="left">
-				    <option name="none">choose the publishers:</option>
+				<select data-local-route-name="text" data-type="string" data-pub-or-sub="publish" name="select-publish-string" class="spacebrew-select" data-native-menu="true" data-icon="grid" data-iconpos="left"/>
 				</select>
 
 				<h2>
