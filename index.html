@@ -18,6 +18,7 @@
 		<script type="text/javascript">
 
 			var sb = {}
+				, app_name = "space string"
 				, debug = true
 				, selects = spacebrewDropDownGenerator( sb )
 				;
@@ -38,13 +39,18 @@
 			* setup Function that connect to spacebrew and creates a listener for clicks of the submit button.
 			*/
 			function setupSpacebrew (){
+				var random_id = "0000" + Math.floor(Math.random() * 10000)
+					;
+
+				app_name = app_name + ' ' + random_id.substring(random_id.length-4);
+
 				// setup spacebrew
 				sb = new Spacebrew.Client();
 				sb.extend(Spacebrew.Admin);
 				selects.registerSB(sb);
 
 				// set the base description
-				sb.name("space strings");
+				sb.name(app_name);
 				sb.description("This app sends text from an HTML form."); // set the app description
 
 		        // create the spacebrew subscription channels
@@ -53,6 +59,7 @@
 
 				// configure the publication and subscription feeds
 				sb.onStringMessage = onStringMessage;		
+				sb.onOpen = onOpen;
 				sb.onNewClient = onNewClient;
 				sb.onUpdateClient = onNewClient;
 				sb.onRemoveClient = onRemoveClient;
@@ -85,6 +92,17 @@
 					$("#text").val("");                   // clear the text box
 					$("#status").text(newString); // display the sent message in the browser         
 				}
+			}
+
+			/**
+			 * Function that is called when Spacebrew connection is established
+			 */
+			function onOpen() {
+				var message = "Connected as <strong>" + sb.name() + "</strong>. ";
+				if (sb.name() === app_name) {
+					message += "<br>You can customize this app's name in the query string by adding <strong>name=your_app_name</strong>."
+				}
+				$("#name").html( message );
 			}
 
 			/**
@@ -127,6 +145,10 @@
 			</div>
 
 			<div data-role="content" id="content">	
+				<br>
+				<div id="name">Trying to connect</div>
+				<br>
+
 				<label for="text">Write Something</label>
 				<input type="text" class="text" id="text" value="say something"/>
 				<input type="button" class="button" id="submit1" value="press me" data-icon="star"/>
